@@ -1,0 +1,7 @@
+Column A,Column B,Column C,Owner,Status
+Engineering,Backend,Auth Service,Alice,Active
+Engineering,Backend,Billing Service,Bob,Active
+Engineering,Frontend,Web App,Carol,Active
+Marketing,Brand,Guidelines,Dan,Draft
+Marketing,Campaigns,Q3 Launch,Eve,Active
+Sales,Enterprise,Pipeline,Frank,Active

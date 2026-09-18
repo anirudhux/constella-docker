@@ -1,0 +1,7 @@
+Level 1,Level 2,Level 3,Owner,Status,URL
+Engineering,Backend,Auth Service,Alice,Active,https://ex.com/auth
+Engineering,Backend,Billing Service,Bob,Active,https://ex.com/billing
+Engineering,Frontend,Web App,Carol,Active,https://ex.com/web
+Marketing,Brand,Guidelines,Dan,Draft,https://ex.com/brand
+Marketing,Campaigns,Q3 Launch,Eve,Active,https://ex.com/q3
+Sales,Enterprise,Pipeline,Frank,Active,https://ex.com/pipe

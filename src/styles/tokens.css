@@ -1,0 +1,199 @@
+/* ===========================================================================
+   Constella — Design tokens (from reusabledesign.md)
+   Near-monochrome zinc ramp + a single warm accent. Light is the default;
+   dark mode mirrors the ramp. The accent ramp is the only thing to swap to
+   re-theme; neutrals hold across modes.
+   ========================================================================== */
+
+:root {
+  /* Neutrals — light. OKLCH: perceptually-uniform zinc ramp (cool ~286° hue,
+     lightness stepped evenly). Values are faithful conversions of the prior
+     zinc hex ramp — the tuning was good; OKLCH just makes it uniform. */
+  --bg: oklch(0.9851 0 0);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.9674 0.0013 0); /* subtle inset */
+  --border: oklch(0.9197 0.004 286.3);
+  --border-muted: oklch(0.8711 0.0055 286.3);
+  --text: oklch(0.1448 0 0);
+  --heading: oklch(0.2103 0.0059 285.9);
+  --text-strong: oklch(0.3703 0.0119 285.8);
+  --text-muted: oklch(0.4419 0.0146 285.8);
+  --text-subtle: oklch(0.5517 0.0138 285.9);
+
+  /* Optional shaded backing behind graph labels (Settings → Label background):
+     a near-opaque scrim matching the ground, so labels stay legible over busy
+     links/nodes. Light here; dark in the dark theme. */
+  --hg-label-bg: oklch(1 0 0 / 0.85);
+
+  /* Accent — swap this ramp to re-theme (warm ~45° hue) */
+  --accent: oklch(0.7049 0.1867 47.6); /* brand mark, icon accents */
+  --accent-deep: oklch(0.6461 0.1943 41.1); /* primary CTA, links, hover */
+  --accent-hi: oklch(0.7686 0.1647 70.1); /* underlines, flourishes */
+  --accent-soft: oklch(0.7049 0.1867 47.6 / 0.12); /* glow / tints */
+
+  /* Type */
+  --font-display: "Hanken Grotesk", system-ui, sans-serif;
+  --font-ui: "Geist Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Shape */
+  --radius-card: 16px;
+  --radius-control: 7px;
+  --radius-pill: 9999px;
+
+  /* Elevation — soft only */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-pop: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+  /* Spacing rhythm */
+  --space: 8px;
+  --content-max: 720px;
+
+  /* App shell — one bounded frame the chrome + every view align to */
+  --shell: 1320px;
+  --shell-pad: clamp(16px, 4vw, 28px);
+
+  /* Homepage background dot field — colour may change */
+  --dot: oklch(0.9321 0.0054 286.3);
+  --dot-gap: 22px;
+
+  /* Derived colours — pre-baked color-mix() results as plain rgba so no
+     browser has to compute mixes at paint time (and older ones that lack
+     color-mix don't silently drop the rule). Values are exact srgb
+     resolutions of the former mixes; recompute if the base ramp changes.
+     -aNN  = base colour at NN% alpha
+     tint  = accent blended over surface  ·  ink/rail/border = one-off blends */
+  --bg-a82: rgba(250, 250, 250, 0.82);
+  --surface-a80: rgba(255, 255, 255, 0.8);
+  --surface-a82: rgba(255, 255, 255, 0.82);
+  --surface-a88: rgba(255, 255, 255, 0.88);
+  --surface-a90: rgba(255, 255, 255, 0.9);
+  --surface-a94: rgba(255, 255, 255, 0.94);
+  --border-a55: rgba(228, 228, 231, 0.55);
+  --text-subtle-a15: rgba(113, 113, 122, 0.15);
+  --accent-a14: rgba(249, 115, 22, 0.14);
+  --accent-a30: rgba(249, 115, 22, 0.3);
+  --accent-a40: rgba(249, 115, 22, 0.4);
+  --accent-a42: rgba(249, 115, 22, 0.42);
+  --accent-hi-a42: rgba(245, 158, 11, 0.42);
+  --accent-tint-6: rgb(255, 247, 241);
+  --accent-tint-10: rgb(254, 241, 232);
+  --accent-tint-14: rgb(254, 235, 222);
+  --accent-tint-16: rgb(254, 233, 218);
+  --accent-border-45: rgb(237, 177, 137);
+  --accent-deep-ink: rgb(168, 63, 9);
+  --rail-stripe: rgb(237, 237, 238);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* Neutrals — dark (OKLCH mirror of the ramp) */
+  --bg: oklch(0.1452 0.0021 286.1);
+  --surface: oklch(0.2011 0.0039 286);
+  --surface-2: oklch(0.241 0.0076 285.8);
+  --border: oklch(0.2875 0.0109 285.7);
+  --border-muted: oklch(0.3516 0.0138 285.7);
+  --text: oklch(0.9674 0.0013 0);
+  --heading: oklch(0.9851 0 0);
+  --text-strong: oklch(0.8711 0.0055 286.3);
+  --text-muted: oklch(0.7118 0.0129 286.1);
+  --text-subtle: oklch(0.6363 0.0133 286);
+
+  /* Dark scrim behind labels (the "black / dark grey" backing). */
+  --hg-label-bg: oklch(0.16 0.004 286 / 0.85);
+
+  /* Accent holds; soften the glow tint for dark */
+  --accent-soft: oklch(0.7049 0.1867 47.6 / 0.16);
+  --dot: oklch(0.2711 0.011 285.6);
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.55);
+
+  /* Derived colours — dark resolutions of the same recipes (see light block). */
+  --bg-a82: rgba(10, 10, 11, 0.82);
+  --surface-a80: rgba(22, 22, 24, 0.8);
+  --surface-a82: rgba(22, 22, 24, 0.82);
+  --surface-a88: rgba(22, 22, 24, 0.88);
+  --surface-a90: rgba(22, 22, 24, 0.9);
+  --surface-a94: rgba(22, 22, 24, 0.94);
+  --border-a55: rgba(42, 42, 48, 0.55);
+  --text-subtle-a15: rgba(138, 138, 147, 0.15);
+  --accent-a14: rgba(249, 115, 22, 0.14);
+  --accent-a30: rgba(249, 115, 22, 0.3);
+  --accent-a40: rgba(249, 115, 22, 0.4);
+  --accent-a42: rgba(249, 115, 22, 0.42);
+  --accent-hi-a42: rgba(245, 158, 11, 0.42);
+  --accent-tint-6: rgb(36, 28, 24);
+  --accent-tint-10: rgb(45, 31, 24);
+  --accent-tint-14: rgb(54, 35, 24);
+  --accent-tint-16: rgb(58, 37, 24);
+  --accent-border-45: rgb(135, 75, 36);
+  --accent-deep-ink: rgb(168, 63, 9);
+  --rail-stripe: rgb(36, 36, 41);
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   Reset / base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+a {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,5 @@
+# The browser-support dial. postcss-preset-env (autoprefixing + CSS fallbacks,
+# e.g. oklch → rgb) reads this at build time — widen or narrow support by
+# editing THIS file and rebuilding; no source changes needed.
+defaults
+not dead

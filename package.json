@@ -1,0 +1,45 @@
+{
+  "name": "constella-hybrid-graph",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:runtime && tsc -b && vite build && node scripts/check-hosts.mjs",
+    "typecheck": "tsc -b --noEmit",
+    "preview": "vite preview",
+    "test:bdd": "NODE_OPTIONS='--import tsx' cucumber-js",
+    "test:net": "NODE_OPTIONS='--import tsx' cucumber-js --tags \"(@smoke or @regression) and not @wip and not @expected\"",
+    "test:smoke": "NODE_OPTIONS='--import tsx' cucumber-js --tags \"@smoke and not @wip and not @expected\"",
+    "test:regression": "NODE_OPTIONS='--import tsx' cucumber-js --tags \"@regression and not @wip and not @expected\"",
+    "test:coverage": "node tests/coverage-report.mjs",
+    "check:hosts": "node scripts/check-hosts.mjs",
+    "test:core": "NODE_OPTIONS='--import tsx' cucumber-js --tags \"@core and not @wip and not @expected\"",
+    "build:runtime": "vite build -c vite.standalone.config.ts"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.0.3",
+    "@fontsource/hanken-grotesk": "^5.0.18",
+    "@types/d3": "^7.4.3",
+    "@vercel/analytics": "^2.0.1",
+    "d3": "^7.9.0",
+    "papaparse": "^5.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.160.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.9.0",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "playwright": "^1.61.1",
+    "postcss-preset-env": "^11.3.2",
+    "tsx": "^4.22.4",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.0"
+  }
+}

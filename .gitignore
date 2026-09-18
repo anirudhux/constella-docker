@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Test artifacts (BDD harness)
+tests/_report/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+.env*
+
+# User-provided inputs and produced exports (kept out of the tree)
+user_inputs/
+exports/
+
+# Loose media not yet ingested by the app
+WhatIsConstella.mp4
+
+# Internal / local-only — never publish to GitHub
+.claude/
+docs/
+Sarvam-Combined-Briefing.md
+
+# Raw Design Demo Nights source dataset (the shipped copy lives in public/showcase/)
+design-demo-nights/

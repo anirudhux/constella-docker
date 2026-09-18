@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Constella — Hybrid Hierarchy Graph</title>
+    <meta
+      name="description"
+      content="Turn a spreadsheet, Markdown outline, or JSON manifest into a polished, interactive hierarchy graph."
+    />
+
+    <!-- Theme-aware favicon (the radial mark from the hero artwork). The
+         pre-paint script below swaps the href to match light/dark, and
+         useTheme keeps it in sync when the theme is toggled. -->
+    <link
+      rel="icon"
+      id="favicon"
+      type="image/svg+xml"
+      href="/favicon-light.svg"
+    />
+    <!-- Raster fallback for browsers that don't render SVG favicons. -->
+    <link rel="alternate icon" type="image/png" href="/favicon.png" />
+
+    <!-- Social / Open Graph -->
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Constella" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta
+      property="og:title"
+      content="Constella — turn structured data into an interactive hierarchy graph"
+    />
+    <meta
+      property="og:description"
+      content="A spreadsheet, Markdown outline, or JSON manifest becomes a polished, embeddable hierarchy graph."
+    />
+    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image:width" content="2400" />
+    <meta property="og:image:height" content="1260" />
+    <meta
+      property="og:image:alt"
+      content="Constella — a glowing radial hierarchy graph"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Constella — turn structured data into an interactive hierarchy graph"
+    />
+    <meta
+      name="twitter:description"
+      content="A spreadsheet, Markdown outline, or JSON manifest becomes a polished, embeddable hierarchy graph."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+
+    <!-- Set the theme before first paint so tokens (and the hero SVG) never
+         flash the wrong palette on cold load. useTheme reads this value. -->
+    <script>
+      (function () {
+        try {
+          /* Dark by default — only an explicit user toggle switches to light.
+             The OS colour-scheme preference is deliberately not consulted. */
+          var saved = sessionStorage.getItem("constella:theme");
+          var theme = saved === "dark" || saved === "light" ? saved : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+          var fav = document.getElementById("favicon");
+          if (fav) fav.setAttribute("href", "/favicon-" + theme + ".svg");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,3412 @@
+/* ===========================================================================
+   App shell + components. All color/shape/spacing comes from tokens.css, so
+   light/dark "just work" via the swapped variables.
+   ========================================================================== */
+
+.app {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  /* Never scroll sideways — decorative glow, hover tooltips, and graph labels
+     can spill past the viewport. `clip` (not `hidden`) contains them without
+     making a scroll container, so the sticky top bar keeps working. */
+  overflow-x: clip;
+}
+
+/* One ambient accent glow near top-center (design guide §4). Anchored in px so
+   its tail fades out above the hero clip on any viewport height — keeping the
+   clip on a flat, exactly-matching background (no seam). */
+/* Homepage dot-matrix field — fixed full-bleed, sits behind the glow + content. */
+.dot-field {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.6px);
+  background-size: var(--dot-gap) var(--dot-gap);
+}
+.glow {
+  position: fixed;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1100px, 130vw);
+  height: 460px;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    var(--accent-soft),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Topbar                                                                     */
+/* -------------------------------------------------------------------------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  /* Brand + toggle align to the shell edges; the bar/border stay full width. */
+  padding: 12px calc(max(0px, (100vw - var(--shell)) / 2) + var(--shell-pad));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-a82);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+}
+.brand__mark {
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1;
+}
+.brand__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--heading);
+}
+
+.topbar__lead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.topbar__tag {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 860px) {
+  .topbar__tag {
+    display: none;
+  }
+}
+.topbar__end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Header hamburger menu — the graph page's home for footer contents */
+.topmenu {
+  position: relative;
+}
+.topmenu__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-muted);
+  box-shadow: var(--shadow-soft), 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.topmenu__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  text-decoration: none;
+  text-align: left;
+}
+.topmenu__item:hover {
+  background: var(--accent-tint-10);
+  color: var(--accent-deep);
+}
+.topmenu__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  color: var(--text-subtle);
+}
+.topmenu__sep {
+  height: 1px;
+  margin: 5px 8px;
+  background: var(--border-muted);
+}
+
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: var(--shadow-soft);
+}
+.icon-btn:hover {
+  border-color: var(--border-muted);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Content / steps                                                            */
+/* -------------------------------------------------------------------------- */
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px) clamp(16px, 4vw, 24px);
+}
+.content--center {
+  display: flex;
+  align-items: center;
+  padding-top: clamp(10px, 2vw, 18px);
+  padding-bottom: clamp(10px, 2vw, 18px);
+}
+.step {
+  width: 100%;
+}
+.step--center {
+  text-align: center;
+}
+
+/* Hero */
+.hero {
+  margin-bottom: clamp(8px, 1.5vw, 14px);
+}
+.hero-illu {
+  margin: 0 auto clamp(8px, 1.4vw, 12px);
+  max-width: 280px;
+}
+.hero-illu .constella-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Hero illustration: one static image per theme (sRGB-accurate, baked bg matches
+   the page exactly — no seam). */
+.hero-img {
+  margin: 0 auto clamp(8px, 1.4vw, 12px);
+  max-width: 380px;
+}
+.hero-img__el {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.hero__title {
+  font-size: clamp(23px, 5vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 auto;
+  max-width: 640px;
+  text-wrap: balance;
+}
+.flourish {
+  background-image: linear-gradient(
+    transparent 62%,
+    var(--accent-hi-a42) 0
+  );
+  background-repeat: no-repeat;
+  border-radius: 2px;
+}
+.hero__sub {
+  margin: clamp(18px, 3vw, 28px) auto 0;
+  max-width: 46ch;
+  color: var(--text-muted);
+  font-size: clamp(15px, 2.2vw, 17px);
+}
+
+/* The import card — groups "what counts as structured" (the blurbs) with the
+   single primary action. Surface tile + a soft accent halo. */
+.import-card {
+  position: relative;
+  max-width: 700px;
+  margin: clamp(28px, 4.5vw, 44px) auto 0;
+  padding: clamp(16px, 3vw, 22px) clamp(20px, 4vw, 36px) clamp(12px, 2vw, 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  /* Subtle, diffused elevation: a soft contact line + a wide, low-opacity
+     ambient. No heavy drop / accent glow. */
+  box-shadow:
+    0 1px 2px rgba(20, 20, 31, 0.04),
+    0 10px 24px -12px rgba(20, 20, 31, 0.07),
+    0 28px 56px -28px rgba(20, 20, 31, 0.1);
+}
+:root[data-theme="dark"] .import-card {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 20px 48px -20px rgba(0, 0, 0, 0.55);
+}
+
+/* Supported-format blurbs — informative, not interactive; a subtle divider
+   between each (no card boxes). */
+.formats {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+.format {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 2px clamp(12px, 2.5vw, 22px);
+}
+.format + .format {
+  border-left: 1px solid var(--border);
+}
+.format__icon {
+  display: inline-flex;
+  color: var(--accent-deep);
+  margin-bottom: 2px;
+}
+.format__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--heading);
+}
+.format__sub {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+/* Primary importer — one solid CTA (the app's primary language), accepts every
+   supported format (click to browse; no drag-and-drop). */
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: clamp(22px, 4vw, 32px);
+  padding: 11px 26px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent-deep);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(14px, 1.7vw, 15.5px);
+  cursor: pointer;
+  box-shadow: 0 4px 14px -6px var(--accent-a42);
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+.upload-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.upload-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+.upload-btn svg {
+  flex: none;
+}
+
+/* Panel */
+.panel {
+  text-align: left;
+  margin: 22px auto 0;
+  max-width: 560px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.panel__title {
+  font-size: 20px;
+}
+.panel__sub {
+  margin: 6px 0 18px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ==========================================================================
+   Unmappable step — the one thing that pauses an import. Shown when we're not
+   confident enough to read the file as a hierarchy (below the 80% cut-off, or
+   no hierarchy at all). A kind non-error, never a red alert.
+   ========================================================================== */
+
+.step--unmappable {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.unmappable {
+  width: 100%;
+  max-width: 520px;
+  text-align: left;
+}
+.unmappable__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.unmappable__mark {
+  color: var(--accent);
+  font-size: 18px;
+}
+.unmappable__title {
+  font-size: 20px;
+}
+.unmappable__points {
+  margin: 12px 0 20px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.unmappable__points strong {
+  color: var(--heading);
+  font-weight: 600;
+}
+.unmappable__example {
+  margin: 4px 0 20px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface-2);
+}
+.unmappable__example-canvas {
+  margin-bottom: 10px;
+}
+.unmappable__example-cap {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Partial-render banner — shown on the graph when only the compatible part of
+   a file was rendered. Informational, dismissible, never an error. */
+.partial-banner {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 560px);
+  padding: 8px 12px;
+  border: 1px solid var(--accent-line, rgba(232, 100, 30, 0.35));
+  border-radius: var(--radius-control);
+  background: var(--accent-tint, rgba(232, 100, 30, 0.1));
+  color: var(--heading);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.partial-banner__x {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+.partial-banner__x:hover {
+  color: var(--heading);
+}
+
+/* Static graph sketch (what a hierarchy looks like). */
+.gpreview {
+  display: block;
+}
+.gpreview__edge {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.gpreview__node {
+  fill: var(--text-muted);
+}
+.gpreview__node--root {
+  fill: var(--accent);
+}
+
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+  margin-bottom: 16px;
+}
+.seg__btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.seg__btn--on {
+  background: var(--surface);
+  color: var(--heading);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Dropzone */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 34px 20px;
+  border: 1.5px dashed var(--border-muted);
+  border-radius: var(--radius-card);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.dropzone--over {
+  border-color: var(--accent-deep);
+  background: var(--accent-soft);
+}
+.dropzone--disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.dropzone__main {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text);
+}
+.dropzone__browse {
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.dropzone__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+/* Paste */
+.paste {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.paste__area {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.paste__area:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 1px;
+}
+
+/* Off-screen but focusable/clickable — used for the hidden file input. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* CTA row — the two primary entry points side by side. Sample sits on the
+   left (secondary, ghost) and Upload on the right (primary, solid). Wraps to
+   stacked on narrow widths so both stay full-width and readable. */
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: clamp(22px, 4vw, 32px);
+}
+/* Kill the upload button's own top margin inside the row — the row owns spacing now. */
+.cta-row .upload-btn {
+  margin-top: 0;
+}
+
+/* Secondary CTA — ghost/outline pill matched to .upload-btn's height and
+   type scale so both read as peers, one primary, one secondary. Was a text
+   link; people were skimming past it. */
+.sample-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 24px;
+  border: 1.5px solid var(--accent-deep);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--accent-deep-ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(14px, 1.7vw, 15.5px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+:root[data-theme="dark"] .sample-btn {
+  color: var(--accent-deep);
+  border-color: var(--accent-deep);
+}
+.sample-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+.sample-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.sample-btn:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--radius-pill);
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: filter 0.15s ease, border-color 0.15s ease;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.btn--primary {
+  background: var(--accent-deep);
+  color: #fff;
+}
+.btn--primary:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--text-strong);
+  border-color: var(--border);
+}
+.btn--ghost:hover {
+  border-color: var(--border-muted);
+}
+/* Accent-outlined button — stands out without being the solid-orange primary
+   (used for the "Upload your document" nudge on the sample graph). */
+.btn--accent {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  border-color: var(--accent-a40);
+}
+.btn--accent:not(:disabled):hover {
+  border-color: var(--accent-deep);
+  background: var(--accent-tint-16);
+}
+
+/* Key/value list */
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 7px 16px;
+  align-items: baseline;
+  margin: 2px 0 14px;
+}
+.kv dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+.kv dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.questions {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.error {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #b91c1c;
+}
+:root[data-theme="dark"] .error {
+  color: #fca5a5;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Fields / inputs */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.field__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--heading);
+}
+.select,
+.input {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+}
+.input--narrow {
+  max-width: 96px;
+}
+.select--sm {
+  padding: 5px 8px;
+  font-size: 13px;
+}
+
+/* Mapping table */
+.maptable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 8px;
+  background: var(--surface-2);
+}
+.maptable__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.maptable__col {
+  font-size: 14px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.maptable__row .select {
+  flex: 0 0 auto;
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--heading);
+}
+.stat__label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.stat--muted .stat__value {
+  color: var(--accent-deep);
+}
+
+/* Warnings */
+.warnings {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow: auto;
+}
+.warnings__item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.warnings__code {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Output step (graph)                                                        */
+/* -------------------------------------------------------------------------- */
+.content--wide {
+  max-width: none;
+  /* Fill the shell (not the whole viewport) so the graph aligns with the chrome. */
+  padding: 16px calc(max(0px, (100vw - var(--shell)) / 2) + var(--shell-pad)) 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.step--full {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toolbar__meta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.toolbar__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.toolbar .btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Grow to fill the space between the title row and the control row, so the
+     page fits the viewport (footer visible) instead of a fixed 72vh overflow. */
+  flex: 1 1 0;
+  min-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+/* Root rendered as the chart title (not an in-graph label). Healthy padding
+   below it separates the title from the graph. */
+.chart-title {
+  flex: none;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(16px, 2.2vw, 22px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  padding: clamp(16px, 2.4vw, 24px) 16px clamp(20px, 3vw, 32px);
+}
+.chart-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.graph-canvas {
+  position: absolute;
+  inset: 0;
+}
+/* Frame the graph with top + bottom bands that house the floating control rows
+   (Reset · text-size · Share on top; switcher + Document details on the bottom)
+   so the graph never renders behind them. More specific than `.hg-root { inset:
+   0 }`, which the renderer adds to this same element. */
+.chart-body > .graph-canvas {
+  inset: 56px 0 76px;
+}
+
+/* renderer-created elements */
+.hg-root {
+  position: absolute;
+  inset: 0;
+}
+.hg-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.hg-scene canvas {
+  display: block;
+  touch-action: none;
+  /* Hover reads as inspect (default arrow / pointer over nodes), not a drag
+     handle. The "grabbing" cursor is set in JS only during an actual pan. */
+  cursor: default;
+}
+.hg-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+/* Labels fade in whenever they (re)appear: CSS animations restart on a
+   display:none → block flip, so this one rule eases every appearance —
+   intro settle, refs endpoints, zoom reveals — from 0 up to whatever inline
+   opacity the label pass assigned (no `to` keyframe = the computed value). */
+@keyframes hg-label-in {
+  from {
+    opacity: 0;
+  }
+}
+.hg-label {
+  position: absolute;
+  /* Positioned by exact top-left in JS (updateLabels) so labels can anchor on
+     any side of their node; no CSS transform offset. */
+  max-width: 160px;
+  text-align: center;
+  /* Honor explicit newlines in node names (e.g. "Edition 6\n21-Aug-26"). */
+  white-space: pre-line;
+  font-family: var(--font-ui);
+  line-height: 1.25;
+  padding: 1px 5px;
+  border-radius: 5px;
+  will-change: left, top, opacity;
+  animation: hg-label-in 320ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hg-label {
+    animation: none;
+  }
+}
+/* Settings → Label background = On. A theme-aware scrim behind the label so it
+   stays legible over busy links/nodes. Padding + radius already live on
+   .hg-label, so the box (and label hit-testing) is unchanged — this is pure
+   fill. Per-label opacity still applies, fading a de-emphasised label and its
+   backing together. */
+.hg-labels--boxed .hg-label {
+  background: var(--hg-label-bg);
+}
+.hg-tooltip {
+  position: absolute;
+  z-index: 5;
+  /* Sticky + reachable: the tooltip is anchored (not cursor-following) and
+     accepts the pointer, so you can travel from the node into it and click the
+     link inside. It stays until another node takes over. */
+  pointer-events: auto;
+  min-width: 180px;
+  max-width: 280px;
+  border-radius: 12px;
+  padding: 11px 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-pop);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+/* While hidden it must not swallow clicks meant for the canvas beneath. */
+.hg-tooltip:not(.is-shown) {
+  pointer-events: none;
+}
+/* Cover art wrapped in a link — the whole tile is the click target. */
+.hg-tt-medialink {
+  display: block;
+  text-decoration: none;
+}
+.hg-tt-url {
+  display: block;
+  text-decoration: none;
+}
+.hg-tt-url:hover {
+  text-decoration: underline;
+}
+.hg-tooltip.is-shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Cover image inside the tooltip — bleeds to the card edges above the text. */
+.hg-tt-media {
+  display: block;
+  width: calc(100% + 26px);
+  margin: -11px -13px 9px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid var(--border);
+}
+.hg-tt-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+}
+.hg-tt-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 3px 0 2px;
+  color: var(--heading);
+}
+.hg-tt-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.hg-tt-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hg-tt-meta b {
+  color: var(--text);
+  font-weight: 600;
+}
+.hg-tt-url {
+  font-size: 11px;
+  color: var(--accent-deep);
+  margin-top: 8px;
+  word-break: break-all;
+}
+/* tooltip cross-references */
+.hg-tt-refs {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hg-tt-refs__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+  margin-bottom: 2px;
+}
+.hg-tt-ref {
+  font-size: 11px;
+  color: var(--accent);
+}
+/* node-detail panel / dialog — the SAME card language as the hover tooltip
+   (full-bleed media on top, uppercase eyebrow, name, breadcrumb, bold-key
+   rows), at panel scale. --detail-pad drives the media's edge bleed. */
+.detail-panel {
+  --detail-pad: 16px;
+}
+.sheet {
+  --detail-pad: 22px;
+}
+.detail-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: var(--surface-a88);
+  border-radius: 50%;
+}
+.detail-media {
+  display: block;
+  width: calc(100% + var(--detail-pad, 16px) * 2);
+  margin: calc(-1 * var(--detail-pad, 16px)) calc(-1 * var(--detail-pad, 16px)) 12px;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.detail-media--video {
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  object-fit: contain;
+}
+.detail-eyebrow {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+}
+.detail-name {
+  margin: 3px 0 2px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--heading);
+  padding-right: 26px; /* clear the floating close button */
+}
+.detail-path {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+.detail-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detail-meta b {
+  color: var(--text);
+  font-weight: 600;
+}
+/* Each content zone (facts / summary / references) is fenced off by a hairline
+   divider so the panel reads as distinct groups rather than one long column. */
+.kv,
+.detail-summary,
+.detail-refs {
+  border-top: 1px solid var(--border);
+  margin: 14px 0 0;
+  padding-top: 14px;
+}
+/* Long prose field (Summary) — full width, eyebrow + text, like References. */
+.detail-summary {
+  margin: 14px 0 0;
+}
+.detail-summary__label,
+.detail-refs__label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.detail-summary__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.detail-refs {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.detail-refs__chip {
+  font-size: 12px;
+  color: var(--accent);
+}
+.detail-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: 1px solid var(--accent-deep);
+  border-radius: var(--radius-control);
+  color: var(--accent-deep);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.detail-open:hover {
+  background: var(--accent-deep);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* "Branch References" legend — left side, lists the selected branch's cross-refs */
+.hg-legend {
+  position: absolute;
+  left: clamp(12px, 1.8vw, 26px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  max-width: min(300px, 36%);
+  /* Stay above the bottom-left Reset pill (≈46px tall inc. its offset) with an
+     8px gap; both ends are clamped since the legend is vertically centred.
+     Longer content scrolls internally rather than growing into the pill. */
+  max-height: min(82%, calc(100% - 116px));
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface-a80);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-muted);
+  box-shadow: var(--shadow-soft);
+  font-size: 12px;
+  line-height: 1.3;
+}
+.hg-legend__title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  margin-bottom: 9px;
+}
+.hg-legend__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  column-gap: 6px;
+  row-gap: 7px;
+  align-items: baseline;
+}
+.hg-legend__row {
+  display: contents; /* spans become grid cells → arrows stack in one column */
+}
+.hg-legend__from {
+  color: var(--text);
+}
+.hg-legend__arrow {
+  color: var(--text-subtle);
+}
+.hg-legend__to {
+  color: var(--accent);
+  font-weight: 500;
+}
+/* Tablet + mobile: the Branch References sidebar has nowhere to sit without
+   covering the chart, so hide it across all three views (graph, sunburst, tree
+   — they share this class). References stay available on desktop (>1024px),
+   where there's room for the panel. */
+@media (max-width: 1024px) {
+  .hg-legend {
+    display: none;
+  }
+  /* Tablet: the top row is tight — the centred A/A + layers cluster runs under
+     the right-pinned Share button once the pill carries labels. Go icon-only
+     (✦ / ⇢) so the cluster clears it; labels return on desktop. aria-label +
+     title keep the buttons accessible. */
+  .layers-pill .ctl-label {
+    display: none;
+  }
+  /* Tablet bottom bar: collapse the INACTIVE chart tabs to their icon; the
+     active tab keeps its label (so you always see what you're on), and Settings
+     stays labelled. Keeps the bar compact instead of overflowing. */
+  .graph-controls .viewtoggle__opt:not(.is-active) .ctl-label {
+    display: none;
+  }
+  /* Icon-only tabs: even padding so the icon sits dead-centre in its pill. */
+  .graph-controls .viewtoggle__opt:not(.is-active) {
+    padding: 5px 9px;
+  }
+}
+
+/* Canvas strip — one continuous frosted band flush to the top of the canvas,
+   edge to edge; the title and the share CTA both sit on it */
+/* Share — top-right of the control row (desktop/tablet). The old full-width
+   frosted title bar is gone; the graph name now lives in Document details.
+   The ≤480px block turns this into a bottom-right FAB. */
+.canvas-strip {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+}
+
+/* Text-size quick stepper — top-centre of the control row (visual style from
+   .a-stepper). Centred on the Share button's centreline (31px): the stepper is
+   ~32px tall, so top = 31 − 16 = 15px. The ≤480px block re-pins it to top 12. */
+/* Top-centre cluster: the text-size stepper + layers pill centre TOGETHER —
+   centring only the stepper left the row lopsided once the pill joined it. */
+.canvas-center-controls {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.text-sizer {
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Reset — frosted pill at the top-left, vertically centred on the Share button's
+   centreline (Share: top 12 + height ~38/2 = 31px). Reset is ~36px tall, so
+   top = 31 − 18 = 13px. (≤480px overrides top back to 12.) */
+.canvas-reset {
+  position: absolute;
+  left: 12px;
+  top: 13px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-a90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.canvas-reset:hover {
+  color: var(--accent-deep);
+  border-color: var(--border-muted);
+}
+
+/* Details — frosted pill at the bottom-left, opening the report. Same shape as
+   Reset. Vertically centred on the view-switcher's centreline (switcher: bottom
+   16 + height ~44/2 = 38px above the base). Details is ~36px tall, so
+   bottom = 38 − 18 = 20px. Desktop/tablet only (hidden at ≤480px). */
+.canvas-doc {
+  position: absolute;
+  left: 12px;
+  bottom: 20px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-a90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.canvas-doc:hover {
+  color: var(--accent-deep);
+  border-color: var(--border-muted);
+}
+
+/* Layers pill — ✦ All nodes | ⇢ References as one segmented control, sitting
+   just right of the centred text-size stepper. Deliberately the a-stepper's
+   EXACT metrics (container padding 3px, option padding 4px 10px, hairline
+   divider, --surface-a80 + --border-muted) so the two pills on this line
+   share one height, one baseline, one language. Segments are independent
+   toggles (the layers compose), so both can be active at once; the divider
+   marks them as two different functions in one housing. */
+.layers-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-a80);
+  border: 1px solid var(--border-muted);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-soft);
+}
+.layers-pill__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* Matches the stepper's option height (16px "A" glyph + 4px pads): the two
+     pills on this line must be the same height or the row reads wonky. */
+  min-height: 24px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+/* Divider between the two functions, mirroring the stepper's hairline. */
+.layers-pill__opt + .layers-pill__opt {
+  border-left: 1px solid var(--border-muted);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+.layers-pill__opt:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+.layers-pill__opt:hover {
+  color: var(--accent-deep);
+  background: var(--accent-tint-10);
+}
+.layers-pill__opt.is-active {
+  color: var(--accent-deep);
+  background: var(--accent-tint-10);
+}
+
+/* settings + detail panels float over the stage */
+/* Scrim behind the side panel — dims and freezes the graph (click to close),
+   and sits above the tooltip (z 5) so any pre-click tooltip is covered too. */
+.detail-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: var(--scrim, rgba(0, 0, 0, 0.45));
+  animation: detail-scrim-in 0.14s ease-out;
+}
+@keyframes detail-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+/* Full-height docked rail — flush to the right edge of the graph container,
+   its own scroll. Reads as a side panel, not a floating card. */
+.detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  width: 340px;
+  max-width: 88%;
+  overflow: auto;
+  padding: 16px;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  animation: detail-panel-in 0.18s ease-out;
+}
+@keyframes detail-panel-in {
+  from {
+    transform: translateX(12px);
+    opacity: 0.4;
+  }
+}
+/* The rail's top edge is square (docked), so its cover art is too; the dialog
+   keeps its rounded top corners. */
+.detail-panel .detail-media {
+  border-radius: 0;
+}
+.sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.settings__title {
+  font-size: 17px;
+}
+
+/* ---- Settings dialog -------------------------------------------------- */
+/* Double class beats the later, equal-specificity `.sheet` rule. */
+.sheet.sheet--settings {
+  max-width: 480px;
+  max-height: 92vh;
+  padding: 15px 18px;
+}
+.set-group {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.set-group:first-of-type {
+  border-top: 0;
+  padding-top: 2px;
+  margin-top: 2px;
+}
+.set-group__title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-subtle);
+  margin: 0 0 6px;
+}
+.set-field {
+  margin-bottom: 8px;
+}
+.set-field:last-child {
+  margin-bottom: 0;
+}
+.set-field__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+/* Clickable option tiles (node style, label mode) */
+.tiles {
+  display: grid;
+  gap: 6px;
+}
+.tiles--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.tiles--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 10px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.tile:hover {
+  border-color: var(--border-muted);
+  background: var(--surface-2);
+}
+.tile.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.tile--compact {
+  padding: 6px 10px;
+}
+.tile__label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.tile__hint {
+  font-size: 11px;
+  color: var(--text-subtle);
+  line-height: 1.3;
+}
+
+/* Click-behavior tiles — icon over a centred label, laid out horizontally. */
+.tile--click {
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 8px;
+}
+.tile--click .tile__icon {
+  display: inline-flex;
+  color: var(--text-subtle);
+}
+.tile--click.is-active .tile__icon {
+  color: var(--accent);
+}
+.tile--click .tile__hint {
+  text-align: center;
+}
+
+/* Label-background tiles — a small preview of the label as it'd draw on the
+   graph: a shaded backing pill (On) vs plain text (Off). */
+.tile--bg {
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px 8px 9px;
+}
+.bg-sample {
+  position: relative;
+  height: 50px;
+  border-radius: 6px;
+  background: #17171b;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+/* Busy graph content behind the label — a link line crossing two nodes — so the
+   backing's job (keeping the label readable over it) is visible. */
+.bg-sample__wire {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, #e8641e, #6f8fd6);
+  opacity: 0.85;
+  transform: translateY(-50%);
+}
+.bg-sample__dot {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.bg-sample__dot--a {
+  left: 10%;
+  background: #e8641e;
+}
+.bg-sample__dot--b {
+  right: 10%;
+  background: #6f8fd6;
+}
+.bg-sample__label {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f4f4f2;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+/* On: a solid backing that clearly covers the busy content beneath. */
+.bg-sample__label--shaded {
+  background: #0b0b0d;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+/* Text-size stepper — half-pill pair: small A steps down, large A steps up.
+   Shared between the Settings sheet and the canvas quick control. */
+.a-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-a80);
+  border: 1px solid var(--border-muted);
+}
+/* Divider between the two A's so the stepper reads as one pill */
+.a-stepper__opt + .a-stepper__opt {
+  border-left: 1px solid var(--border-muted);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+.a-stepper__opt:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+.a-stepper__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-muted);
+}
+.a-stepper__opt--sm {
+  font-size: 11px;
+}
+.a-stepper__opt--lg {
+  font-size: 16px;
+}
+.a-stepper__opt:hover:not(:disabled) {
+  color: var(--accent-deep);
+  background: var(--accent-tint-10);
+}
+.a-stepper__opt:active:not(:disabled) {
+  background: var(--accent-tint-16);
+}
+.a-stepper__opt:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Click-behavior rows — illustrated, selectable */
+.opt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.opt:hover {
+  border-color: var(--border-muted);
+  background: var(--surface-2);
+}
+.opt.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.opt__icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.opt.is-active .opt__icon {
+  background: var(--accent-tint-14);
+  color: var(--accent-deep);
+}
+.opt__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.opt__label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.opt__hint {
+  font-size: 11px;
+  color: var(--text-subtle);
+  line-height: 1.3;
+}
+.opt__check {
+  flex: none;
+  width: 18px;
+  color: var(--accent-deep);
+}
+
+.fallback {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.fallback summary {
+  cursor: pointer;
+  color: var(--text-strong);
+}
+.fallback__list {
+  list-style: none;
+  padding: 10px 0 0;
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+}
+.fallback__list li {
+  padding: 2px 0;
+}
+
+.actions--center {
+  justify-content: center;
+}
+
+/* Overlay / sheet (modals) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(3px);
+}
+.sheet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  max-height: 86vh;
+  overflow: auto;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+}
+.sheet--confirm {
+  max-width: 420px;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.export-row {
+  margin: 10px 0 16px;
+}
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.btn--block {
+  display: block;
+  width: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  /* Stack the format blurbs; dividers span the full card width. */
+  .formats {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .format + .format {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  /* On phones the CTAs stack full-width so both read as equal-weight peers
+     the thumb can reach easily; sample stays on top per the row order. */
+  .cta-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cta-row .upload-btn,
+  .cta-row .sample-btn {
+    width: 100%;
+    min-width: 0;
+  }
+  .upload-btn {
+    min-width: min(360px, 100%);
+  }
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Give the graph a taller floor on phones (it still flexes to fill, and the
+     page scrolls if the chrome leaves too little room). */
+  .stage {
+    min-height: min(62vh, 520px);
+  }
+  .hg-scene canvas {
+    cursor: default;
+  }
+}
+
+/* Tooltips are a pointer-hover affordance; suppress them on touch devices,
+   where tap is focus-only. */
+@media (pointer: coarse) {
+  .hg-tooltip {
+    display: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Global footer (attribution + privacy)                                      */
+/* -------------------------------------------------------------------------- */
+.footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  flex-wrap: wrap;
+  /* Footer contents align to the shell edges; the bar/border stay full width. */
+  padding: 12px calc(max(0px, (100vw - var(--shell)) / 2) + var(--shell-pad));
+  border-top: 1px solid var(--border);
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--text-subtle);
+}
+.footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.footer__mark {
+  color: var(--accent);
+  font-size: 14px;
+  line-height: 1;
+}
+.footer__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--heading);
+}
+.footer__tag {
+  padding-left: 9px;
+  border-left: 1px solid var(--border-muted);
+  color: var(--text-subtle);
+}
+.footer__end {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.footer__div {
+  width: 1px;
+  height: 14px;
+  background: var(--border-muted);
+}
+.footer__credit {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+@media (max-width: 560px) {
+  .footer__tag {
+    display: none;
+  }
+}
+.footer__link,
+.footer__privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+.footer__link:hover,
+.footer__privacy:hover {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+.footer__link svg,
+.footer__privacy svg {
+  opacity: 0.85;
+}
+
+/* Import report dialog (read-only summary opened from the graph) */
+.sheet.sheet--report {
+  max-width: 520px;
+}
+/* Graph name + Sample tag — moved here from the (removed) top title strip. */
+.report__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 12px;
+}
+.report__name .gtitle {
+  font-size: 18px;
+}
+.report__sub {
+  margin: 2px 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.report__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+}
+.report__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.report__file svg {
+  flex: none;
+  opacity: 0.8;
+}
+.report__file > span {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.report__actions {
+  display: inline-flex;
+  flex: none;
+  gap: 10px;
+}
+
+/* Hover tooltip for the upload CTAs (formats + structured emphasis). */
+.tip {
+  position: relative;
+  display: inline-flex;
+}
+.tip__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-3px);
+  z-index: 60;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-pop);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.tip--up .tip__pop {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(3px);
+}
+.tip:hover .tip__pop,
+.tip:focus-within .tip__pop {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.tip__pop strong {
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
+/* Transient import error (replace-in-place file pick) */
+.import-toast {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  max-width: min(90vw, 420px);
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-muted);
+  color: var(--text);
+  font-size: 13px;
+  box-shadow: var(--shadow-pop);
+}
+
+/* Privacy dialog */
+.sheet.sheet--privacy {
+  max-width: 520px;
+}
+.privacy-lead {
+  margin: 2px 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-strong);
+}
+.privacy-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.privacy-item {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+}
+.privacy-item__mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-tint-14);
+  color: var(--accent-deep);
+}
+.privacy-item__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.privacy-item__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.privacy-item__body {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Graph page chrome (title block, toolbar, view toggle, outline)             */
+/* -------------------------------------------------------------------------- */
+.gtoolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+}
+.gtoolbar__lead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.gback {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-strong);
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease;
+}
+.gback:hover {
+  border-color: var(--border-muted);
+  color: var(--accent-deep);
+}
+.gtitle-block {
+  min-width: 0;
+}
+.gtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.gtag {
+  flex: none;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-a30);
+  color: var(--accent-deep);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.gtitle {
+  margin: 0;
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gtitle__sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.gstat {
+  color: var(--text-subtle);
+}
+.gstat strong {
+  color: var(--text-strong);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.gtitle__dot {
+  color: var(--border-muted);
+}
+.gtoolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* Separates the "Upload your document" nudge from the view controls. */
+.gtoolbar__sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 3px;
+  background: var(--border);
+}
+.gtoolbar .btn {
+  padding: 8px 15px;
+  font-size: 13px;
+}
+.btn--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn--icon svg {
+  flex: none;
+}
+.btn--sm {
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* Below-graph control row: Reset view CTA + graph/outline view toggle */
+/* Floating control set inside the canvas (elevated, shadowed). */
+.graph-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-a90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-pop);
+}
+.gctl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.gctl-btn:hover {
+  background: var(--surface-2);
+}
+.graph-controls__sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 1px;
+  background: var(--border);
+}
+.viewtoggle {
+  display: inline-flex;
+  gap: 2px;
+}
+/* Shape glyphs (◯ ✦ ∞) inside the flat chart nav — sized up a touch so
+   they optically match the SVG icon that fronts the Sunburst option. Fixed
+   box + flex centring so glyph and SVG sit on the same optical line. */
+.viewtoggle__glyph {
+  font-size: 15px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+.viewtoggle__opt svg {
+  display: block;
+  flex: none;
+}
+.viewtoggle__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  gap: 6px;
+  padding: 5px 13px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.viewtoggle__opt:hover {
+  color: var(--text);
+}
+.viewtoggle__opt.is-active {
+  background: var(--accent-tint-14);
+  color: var(--accent-deep);
+}
+
+/* Expand / fullscreen button — floats top-right inside the canvas */
+.expand-canvas-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface-a88);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  box-shadow: var(--shadow-soft);
+}
+.expand-canvas-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-strong);
+}
+
+/* Fullscreen stage */
+.stage.is-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+/* Text-outline view (swaps in for the canvas inside the stage) */
+.outline {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  /* Extra bottom room so the last rows clear the floating control set. */
+  padding: clamp(16px, 2.5vw, 28px) clamp(14px, 3vw, 32px) 76px;
+}
+.outline__list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 760px;
+}
+.outline__item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--border-a55);
+}
+.outline__name {
+  color: var(--text);
+}
+.outline__item--d0 .outline__name {
+  font-weight: 700;
+  font-size: 16px;
+}
+.outline__item--d1 .outline__name {
+  font-weight: 600;
+}
+.outline__type {
+  flex: none;
+  margin-left: auto;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Share & embed dialog                                                       */
+/* -------------------------------------------------------------------------- */
+.sheet.sheet--share {
+  max-width: 500px;
+}
+.share-hint {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+.share-code {
+  margin-top: 10px;
+}
+.share-code summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-subtle);
+  list-style: none;
+}
+.share-code summary::-webkit-details-marker {
+  display: none;
+}
+.share-code summary::before {
+  content: "▸ ";
+}
+.share-code[open] summary::before {
+  content: "▾ ";
+}
+.share-code__area {
+  width: 100%;
+  height: 120px;
+  margin-top: 8px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.45;
+  padding: 10px;
+}
+.exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.exp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.exp-row__icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.exp-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.exp-row__label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.exp-row__hint {
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+.exp-row__actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Use-cases page (UC2): hero → 3-up card grid → "more trees" → detail dialog  */
+/* -------------------------------------------------------------------------- */
+.uc {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.uc-hero {
+  position: relative;
+  padding: clamp(28px, 6vw, 72px) clamp(16px, 4vw, 40px) clamp(16px, 3vw, 30px);
+  text-align: center;
+}
+.uc-hero__glow {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(820px, 92vw);
+  height: 420px;
+  background: radial-gradient(48% 48% at 50% 40%, var(--accent-soft), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.uc-hero__inner {
+  position: relative;
+  z-index: 1;
+}
+.uc-hero__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.uc-hero__title {
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  margin: 12px auto 0;
+  max-width: 15ch;
+}
+.uc-hero__sub {
+  margin: 20px auto 0;
+  max-width: 54ch;
+  color: var(--text-muted);
+  font-size: clamp(15px, 2vw, 18px);
+}
+.uc-hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+.uc-fmt {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 13px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Homepage embed — top-aligned, single column that matches the hero/import-card
+   width so the page reads as one coherent column (not a narrow hero over a wide
+   grid). The recognition strip is deliberately lighter than the upload CTA. */
+.content--home {
+  max-width: 860px;
+  padding-top: clamp(4px, 1vw, 10px);
+}
+/* Graph page: hand nearly all vertical space to the canvas */
+.content--canvas {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.home-usecases {
+  margin-top: clamp(40px, 7vw, 80px);
+}
+.home-uc__head {
+  text-align: center;
+  margin: 0 auto clamp(16px, 3vw, 24px);
+}
+.home-uc__title {
+  font-size: clamp(24px, 3.4vw, 34px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  margin: 8px 0 0;
+}
+
+/* Compact mini-cards: icon + title + audience, depth lives in the dialog. */
+.home-usecases .uc-grid-wrap {
+  padding: clamp(6px, 1.5vw, 12px) 0 clamp(12px, 2vw, 18px);
+}
+.home-usecases .uc-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.uc-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.uc-mini:hover {
+  border-color: var(--accent-border-45);
+  background: var(--accent-tint-6);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pop);
+}
+/* Hover: invert the icon tile and give the glyph a small playful nudge. */
+.uc-mini:hover .uc-tile {
+  background: var(--accent-deep);
+  color: #fff;
+  transform: scale(1.1) rotate(-4deg);
+}
+.uc-tile--sm {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+}
+.uc-tile--sm svg {
+  width: 19px;
+  height: 19px;
+}
+.uc-mini__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+/* One line each, consistent size; truncate gracefully if a label ever overruns. */
+.uc-mini__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.uc-mini__who {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 920px) {
+  .home-usecases .uc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .home-usecases .uc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card grid */
+.uc-grid-wrap {
+  padding: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 40px) clamp(28px, 5vw, 56px);
+}
+.uc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2vw, 22px);
+}
+.uc-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 26px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.uc-card:hover {
+  border-color: var(--accent-border-45);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-pop);
+}
+.uc-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.uc-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.uc-tile--lg {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+}
+.uc-who {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 600;
+  text-align: right;
+}
+.uc-card__title {
+  font-size: 20px;
+  letter-spacing: -0.015em;
+  margin: 18px 0 8px;
+}
+.uc-card__desc {
+  margin: 0;
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+.uc-card__foot {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.uc-card__link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+
+/* Closing block — pills, then a tightened, continuously looping glyph spectrum. */
+/* Changelog — its own section, peer to the use cases: centred header, a single
+   fused card of rows (timestamp | description | pill), View all at the end. */
+.uc-changelog {
+  padding: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 40px) clamp(24px, 4vw, 40px);
+}
+.uc-changelog__head {
+  text-align: center;
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+.uc-changelog__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.uc-changelog__title {
+  font-size: clamp(28px, 4.5vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 10px auto 0;
+}
+
+/* Fused card holding the rows. Horizontal padding lives on the card so the
+   row separators inset cleanly; rows stack title → description → meta. */
+/* As a standalone page (/changelog) the strip-tuned card reads meagre — let
+   it breathe to a fuller reading column. */
+.uc-changelog--page .cl-card {
+  max-width: 640px;
+}
+
+.cl-card {
+  /* Hug the description measure (~52ch) so the content fills the card instead
+     of leaving a dead zone on the right. */
+  max-width: 468px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 2.5vw, 26px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  text-align: left; /* don't inherit the section's centred header alignment */
+}
+.cl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cl-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: clamp(16px, 2vw, 20px) 0;
+  text-align: left;
+}
+.cl-item + .cl-item {
+  border-top: 1px solid var(--border);
+}
+.cl-item__title {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--heading);
+  text-wrap: balance;
+}
+.cl-item__desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  /* Cap the measure so every row wraps at the same width (a consistent rhythm
+     across items), then balance evens the two lines within it. */
+  max-width: 52ch;
+  text-wrap: balance;
+}
+/* Meta line under the description: the pill, then the timestamp */
+.cl-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 3px;
+}
+.cl-item__date {
+  font-size: 11.5px;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.cl-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cl-tag--new {
+  color: var(--accent-deep);
+  background: var(--accent-a14);
+}
+.cl-tag--improved {
+  color: var(--text-subtle);
+  background: var(--text-subtle-a15);
+}
+/* View all — a left-aligned secondary link (no separator), with generous
+   breathing space after the last entry. */
+/* Homepage "View all use cases" CTA — centred under the chip marquee, with
+   generous air below so the changelog section starts on its own beat. */
+.uc-viewall-wrap {
+  text-align: center;
+  margin: clamp(22px, 3vw, 34px) 0 clamp(48px, 6.5vw, 84px);
+}
+.uc-viewall {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+.uc-viewall:hover {
+  text-decoration: underline;
+}
+
+.uc-changelog__viewall {
+  display: inline-block;
+  margin: clamp(26px, 3.5vw, 40px) 0 clamp(20px, 2.5vw, 26px);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+.uc-changelog__viewall:hover {
+  text-decoration: underline;
+}
+.sheet--changelog {
+  max-width: 560px;
+}
+/* The dialog embeds the same fused card, flush to the sheet */
+.sheet--changelog .cl-card {
+  max-width: none;
+  box-shadow: none;
+}
+
+.uc-more {
+  padding: clamp(8px, 1.5vw, 14px) clamp(16px, 4vw, 40px) clamp(28px, 5vw, 48px);
+}
+.uc-spectrum-wrap {
+  padding: clamp(8px, 1.5vw, 14px) clamp(16px, 4vw, 40px) clamp(28px, 5vw, 52px);
+}
+.uc-spectrum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 26px);
+}
+.uc-spectrum__icon {
+  display: inline-flex;
+  animation: uc-bob 2.6s ease-in-out infinite;
+}
+.uc-spectrum__icon svg {
+  width: 22px;
+  height: 22px;
+}
+@keyframes uc-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+/* Two-row chip marquee, scrolling left → right (rows desynced via duration). */
+.uc-marquee {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+}
+.uc-marquee__track {
+  display: flex;
+  flex: none;
+  gap: 10px;
+  width: max-content;
+  animation: uc-marquee 40s linear infinite;
+}
+.uc-marquee:hover .uc-marquee__track {
+  animation-play-state: paused;
+}
+@keyframes uc-marquee {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.uc-pill {
+  flex: none;
+  white-space: nowrap;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Detail dialog */
+.sheet.sheet--usecase {
+  max-width: 680px;
+  padding: clamp(24px, 4vw, 40px);
+  text-align: center;
+}
+.uc-dialog__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+.uc-dialog__close:hover {
+  border-color: var(--border-muted);
+}
+.uc-dialog__title {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 16px 0 5px;
+}
+.uc-dialog__sub {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+}
+.uc-dialog__body {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.uc-dialog__body p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.uc-media {
+  position: relative;
+  margin-top: 24px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface-2),
+    var(--surface-2) 11px,
+    var(--rail-stripe) 11px,
+    var(--rail-stripe) 22px
+  );
+}
+.uc-media__play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border-muted);
+  color: var(--accent-deep);
+  box-shadow: var(--shadow-soft);
+}
+.uc-media__caption {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  background: var(--surface-a82);
+  padding: 4px 9px;
+  border-radius: 6px;
+}
+.uc-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+.uc-media__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.uc-dialog__cta {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .uc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 620px) {
+  .uc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Standalone mobile Settings gear (top-right); hidden on desktop, where the
+   in-pill Settings is used instead. */
+.canvas-settings {
+  position: absolute;
+  display: none;
+  z-index: 4;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface-a90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-strong);
+  cursor: pointer;
+}
+.canvas-settings:hover,
+.canvas-settings[aria-pressed="true"] {
+  color: var(--accent-deep);
+}
+
+/* ==========================================================================
+   Mobile graph-page chrome (≤480px). Information architecture:
+   • TOP strip — reset (left) · A/A text-size (centre) · settings (right)
+   • BOTTOM — the plain view switcher (left) + a compact Share FAB (right)
+   • title strip dropped; the graph gets the whole middle.
+   ========================================================================== */
+@media (max-width: 480px) {
+  /* ---- top strip: reset (icon) · A/A · settings (icon) ---- */
+  .canvas-reset {
+    top: 12px;
+    left: 12px;
+    bottom: auto;
+    padding: 8px;
+  }
+  .canvas-reset .ctl-label {
+    display: none;
+  }
+  /* The wrapper (not the stepper) is the positioned element now; it centres the
+     text stepper and the icon-only layers pill together. */
+  .canvas-center-controls {
+    top: 12px;
+  }
+  .canvas-settings {
+    display: inline-flex;
+    top: 12px;
+    right: 12px;
+  }
+
+  /* ---- title / details gone (mobile drops the title strip entirely) ---- */
+  .canvas-strip__lead,
+  .canvas-doc {
+    display: none;
+  }
+  /* Layers pill stays visible — icon-only (handled by the ≤1024px block). */
+
+  /* ---- Share → compact FAB, bottom-right ---- */
+  .canvas-strip {
+    top: auto;
+    left: auto;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-radius: 0;
+  }
+  /* icon-only circular FAB */
+  .canvas-strip__share {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: var(--shadow-pop);
+  }
+  .canvas-strip__share-txt {
+    display: none;
+  }
+
+  /* ---- bottom: view switcher (icons + labels), bottom-left. Capped so it
+     clears the Share FAB; the list scrolls horizontally and fades on the
+     right to signal there's more. ---- */
+  .graph-controls {
+    top: auto;
+    bottom: 12px;
+    left: 12px;
+    right: auto;
+    transform: none;
+    max-width: calc(100% - 84px);
+  }
+  .graph-controls__sep,
+  .graph-controls .gctl-btn {
+    display: none;
+  }
+  .graph-controls .viewtoggle {
+    min-width: 0;
+    gap: 8px; /* a little more air between the options */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  }
+  .graph-controls .viewtoggle::-webkit-scrollbar {
+    display: none;
+  }
+  .graph-controls .viewtoggle__opt {
+    flex: none;
+    padding: 5px 9px;
+  }
+
+  /* ---- graph gets the middle ---- */
+  .chart-body > .graph-canvas {
+    inset: 56px 0 62px;
+  }
+
+  /* header upload → compact "Upload" */
+  .topbar__end .btn--accent .ctl-label {
+    display: none;
+  }
+  .topbar__end .btn--accent {
+    padding: 7px 12px;
+  }
+}
+
+/* Export dialog (Share & embed) — on mobile the row's action buttons wrap to
+   their own line so the label/hint isn't crushed against them. */
+@media (max-width: 480px) {
+  .exp-row {
+    flex-wrap: wrap;
+  }
+  .exp-row__actions {
+    flex-basis: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+}
+
+/* ── Showcase bench (/bench, dev only) — 15 visible slots ───────────────── */
+.bench {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 40px) 0 64px;
+}
+.bench__title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 32px);
+  margin: 0 0 8px;
+}
+.bench__sub {
+  color: var(--text-muted);
+  margin: 0 0 26px;
+  line-height: 1.6;
+}
+.bench__sub code {
+  font-size: 0.9em;
+  color: var(--text);
+}
+.bench__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bench-slot {
+  display: grid;
+  grid-template-columns: 28px 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.bench-slot.is-filled {
+  border-style: solid;
+  border-color: var(--accent-a40);
+}
+.bench-slot__n {
+  color: var(--text-subtle);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.bench-slot__slug {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+}
+.bench-slot__status {
+  font-size: 13px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bench-slot__status--filled {
+  color: var(--accent-deep);
+}
+.bench-slot__status--error {
+  color: #e5484d;
+}
+.bench-slot__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.bench-slot__link {
+  font-size: 13px;
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+.bench-slot__link:hover {
+  text-decoration: underline;
+}
+.bench-slot__btn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.bench-slot__btn:hover:not(:disabled) {
+  border-color: var(--accent-a40);
+  color: var(--accent-deep);
+}
+.bench-slot__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.bench-slot__btn--quiet {
+  border-color: transparent;
+  color: var(--text-muted);
+}
+
+/* Staged (unsaved) slot + the save bar — the bench's explicit commit point. */
+.bench-slot.is-staged {
+  border-style: solid;
+  border-color: var(--accent);
+}
+.bench-slot__status--staged {
+  color: var(--accent-deep);
+  font-weight: 500;
+}
+.bench__savebar {
+  position: sticky;
+  bottom: 16px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-a90);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-pop);
+}
+.bench__savebar.is-visible {
+  display: flex;
+}
+.bench__savemsg {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+.bench__save {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent-deep);
+  color: #fff;
+  cursor: pointer;
+}
+.bench__save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

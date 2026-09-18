@@ -1,0 +1,16 @@
+# Keep the build context small and the image clean. node_modules is rebuilt in
+# the image from the lockfile; the rest is not needed to build the SPA.
+node_modules
+dist
+.git
+.github
+.claude
+docs
+tests
+tests/_report
+*.log
+.DS_Store
+Dockerfile
+.dockerignore
+what-is-constella.md
+constella-name-candidates.md

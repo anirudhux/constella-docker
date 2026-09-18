@@ -1,0 +1,30 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</robots.txt>; rel=\"robots\", </sitemap.xml>; rel=\"sitemap\""
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/use-cases", "destination": "/" },
+    { "source": "/changelog", "destination": "/" },
+    { "source": "/v/:slug", "destination": "/" }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "constella.vercel.app" }],
+      "destination": "https://constella.anirudhux.com/:path*",
+      "permanent": true
+    }
+  ]
+}

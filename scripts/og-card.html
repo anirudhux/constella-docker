@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --text: #fafafa;
+    --muted: #9aa0a6;
+    --accent: #ef8a3f;
+    --hi: #f0a25e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  #scene { position: absolute; inset: 0; display: block; }
+  /* left scrim so the text reads over the glowing graph */
+  .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(100deg,
+      #0a0a0b 0%, #0a0a0b 30%,
+      rgba(10,10,11,0.92) 44%,
+      rgba(10,10,11,0.35) 60%,
+      rgba(10,10,11,0) 74%);
+    z-index: 1;
+  }
+  .content {
+    position: absolute; z-index: 2;
+    left: 76px; top: 0; bottom: 0; width: 600px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 34px; }
+  .brand .mark { color: var(--accent); font-size: 30px; line-height: 1; }
+  .brand .name { font-weight: 700; font-size: 31px; letter-spacing: -0.01em; }
+  h1 {
+    font-weight: 800; font-size: 60px; line-height: 1.04;
+    letter-spacing: -0.035em; color: #fff;
+  }
+  h1 .flourish {
+    background-image: linear-gradient(transparent 58%, rgba(240,162,94,0.34) 0);
+    border-radius: 2px;
+  }
+  .sub {
+    margin-top: 26px; font-size: 23px; line-height: 1.45;
+    color: var(--muted); font-weight: 500; max-width: 30ch;
+  }
+  .foot {
+    margin-top: 40px; display: flex; align-items: center; gap: 12px;
+    font-size: 19px; font-weight: 600; letter-spacing: 0.01em;
+  }
+  .foot .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px 1px rgba(239,138,63,0.8); }
+  .foot .url { color: var(--hi); }
+  .chips { margin-top: 22px; display: flex; gap: 9px; }
+  .chip {
+    font-size: 15px; font-weight: 600; letter-spacing: 0.03em;
+    color: #cdd0d4; border: 1px solid #2c2c31; border-radius: 999px;
+    padding: 6px 14px; background: rgba(255,255,255,0.02);
+  }
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="scrim"></div>
+  <div class="content">
+    <div class="brand">
+      <span class="mark">✦</span>
+      <span class="name">Constella</span>
+    </div>
+    <h1>Turn structured data into an <span class="flourish">interactive hierarchy graph</span>.</h1>
+    <p class="sub">A spreadsheet, Markdown outline, or JSON manifest becomes a polished, embeddable graph.</p>
+    <div class="chips">
+      <span class="chip">CSV</span>
+      <span class="chip">Markdown</span>
+      <span class="chip">JSON</span>
+    </div>
+    <div class="foot">
+      <span class="dot"></span>
+      <span class="url">constella.anirudhux.com</span>
+    </div>
+  </div>
+
+<script>
+  const W = 1200, H = 630;
+  const c = document.getElementById('scene');
+  const dpr = window.devicePixelRatio || 1;
+  c.width = W * dpr; c.height = H * dpr;
+  c.style.width = W + 'px'; c.style.height = H + 'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // deterministic RNG so the card is reproducible
+  let s = 1337;
+  const rnd = () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+
+  const PALETTE = ['#5b9bd5', '#8a7fc7', '#4fa8a0', '#86b56a', '#cf7d92', '#c9a94e'];
+  const ACCENT = '#ef8a3f';
+  const cx = 820, cy = 315; // graph center (right of middle)
+
+  // base
+  ctx.fillStyle = '#0a0a0b';
+  ctx.fillRect(0, 0, W, H);
+
+  // warm ambient glow behind the graph
+  let g = ctx.createRadialGradient(cx, cy - 10, 20, cx, cy, 470);
+  g.addColorStop(0, 'rgba(239,138,63,0.16)');
+  g.addColorStop(0.45, 'rgba(239,138,63,0.05)');
+  g.addColorStop(1, 'rgba(239,138,63,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // faint starfield for constellation depth
+  for (let i = 0; i < 90; i++) {
+    const x = 360 + rnd() * (W - 380);
+    const y = 30 + rnd() * (H - 60);
+    const r = 0.5 + rnd() * 1.6;
+    ctx.globalAlpha = 0.04 + rnd() * 0.13;
+    ctx.fillStyle = rnd() > 0.78 ? PALETTE[(rnd() * PALETTE.length) | 0] : '#dfe3ea';
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // ---- build the hierarchy ----
+  const root = { x: cx, y: cy, r: 23, color: ACCENT };
+  const branches = [];
+  const N = 6;
+  for (let i = 0; i < N; i++) {
+    const a = -Math.PI / 2 + (i / N) * Math.PI * 2 + 0.18;
+    const rad = 140 + rnd() * 18;
+    branches.push({
+      x: cx + Math.cos(a) * rad,
+      y: cy + Math.sin(a) * rad,
+      r: 12.5, color: PALETTE[i % PALETTE.length], a,
+    });
+  }
+  const leaves = [];
+  branches.forEach((b) => {
+    const k = 2 + ((rnd() * 2) | 0);
+    for (let j = 0; j < k; j++) {
+      const a = b.a + (j - (k - 1) / 2) * 0.42 + (rnd() - 0.5) * 0.1;
+      const rad = 120 + rnd() * 55;
+      leaves.push({
+        x: b.x + Math.cos(a) * rad,
+        y: b.y + Math.sin(a) * rad,
+        r: 4.5 + rnd() * 2.5, color: b.color, from: b,
+      });
+    }
+  });
+
+  const line = (a, b, color, w, alpha, blur) => {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = w;
+    ctx.lineCap = 'round';
+    if (blur) { ctx.shadowColor = color; ctx.shadowBlur = blur; }
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.restore();
+  };
+
+  // reference arcs (faint cross-links) behind everything
+  for (let i = 0; i < 7; i++) {
+    const p = leaves[(rnd() * leaves.length) | 0];
+    const q = branches[(rnd() * branches.length) | 0];
+    line(p, q, '#8b84c7', 1, 0.10, 0);
+  }
+  // branch -> leaf
+  leaves.forEach((l) => line(l.from, l, '#6c6358', 1.2, 0.32, 0));
+  // trunk: root -> branch (warm, glowing)
+  branches.forEach((b) => line(root, b, ACCENT, 2.1, 0.55, 6));
+
+  const node = (n, glowMul) => {
+    ctx.save();
+    ctx.shadowColor = n.color;
+    ctx.shadowBlur = n.r * (glowMul || 1.7);
+    ctx.fillStyle = n.color;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 7); ctx.fill();
+    ctx.restore();
+    // bright core
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(n.x - n.r * 0.28, n.y - n.r * 0.28, n.r * 0.32, 0, 7); ctx.fill();
+    ctx.restore();
+  };
+
+  leaves.forEach((l) => { ctx.globalAlpha = 0.92; node(l, 1.5); });
+  ctx.globalAlpha = 1;
+  branches.forEach((b) => node(b, 1.8));
+
+  // root halo + node
+  let rg = ctx.createRadialGradient(root.x, root.y, 2, root.x, root.y, 60);
+  rg.addColorStop(0, 'rgba(239,138,63,0.55)');
+  rg.addColorStop(1, 'rgba(239,138,63,0)');
+  ctx.fillStyle = rg;
+  ctx.beginPath(); ctx.arc(root.x, root.y, 60, 0, 7); ctx.fill();
+  node(root, 2.2);
+  // thin ring around root
+  ctx.save();
+  ctx.strokeStyle = 'rgba(239,138,63,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(root.x, root.y, root.r + 9, 0, 7); ctx.stroke();
+  ctx.restore();
+
+  window.__ogReady = true;
+</script>
+</body>
+</html>
