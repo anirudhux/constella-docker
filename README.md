@@ -1,14 +1,15 @@
-# Constella — offline Docker build
+# Constella: offline Docker build
 
-Constella turns a structured file — a spreadsheet, a Markdown outline, or a
-JSON manifest — into an interactive hierarchy graph you can explore and export.
+Constella turns a structured file into an interactive hierarchy graph you can
+explore and export. It takes a spreadsheet, a Markdown outline, or a JSON
+manifest.
 
-This build runs entirely on your own machine, inside a Docker container. Nothing
-you open is uploaded anywhere, and once the image is built the app needs no
-internet at all — so it's fine to run on a locked-down or air-gapped network.
+This build runs entirely on your own machine, inside a Docker container. It
+uploads nothing; once you build the image, the app needs no internet at all, so
+it runs on a locked-down or air-gapped network.
 
-New to Docker? No problem — this guide assumes you've never used it. Start to
-finish is about five minutes.
+You don't need to know Docker. This guide assumes you have never used it; start
+to finish takes about five minutes.
 
 ## What you need
 
