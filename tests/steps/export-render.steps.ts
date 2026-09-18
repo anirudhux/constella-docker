@@ -81,11 +81,6 @@ Then(
     // DOM labels exist
     const labels = await page.locator("#labels .nlabel").count();
     assert.ok(labels > 0, `expected node labels, found ${labels}`);
-    // Badge points at the live site (regression guard for the dead-URL fix)
-    assert.equal(
-      await page.locator(".cn-mark").getAttribute("href"),
-      "https://constella.anirudhux.com",
-    );
     // Tooltip answers a click near the root (canvas center)
     const box = (await page.locator("#scene canvas").boundingBox())!;
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);

@@ -26,7 +26,7 @@ export default defineConfig({
     outDir: "src/generated",
     emptyOutDir: true,
     // Wider JS floor than the app: exports run on strangers' machines.
-    target: ["es2017", "safari12"],
+    target: ["es2017"],
     minify: true,
   },
 });

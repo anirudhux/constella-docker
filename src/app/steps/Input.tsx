@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "r
 import type { DetectionResult, RawInput } from "../../types/graph";
 import { ACCEPT_ALL, readAnyFile } from "../ingest";
 import { detectStructure } from "../../core/detect";
+import { loadSampleRaw, warmSample } from "../samples";
 import { HeroImage } from "../HeroImage";
 import {
   IconUpload,
@@ -75,13 +76,18 @@ export function InputStep({ error, onReady, onError }: InputStepProps) {
     }
   }
 
-  // The "try it" path routes to the /v/atlas showcase URL rather than loading
-  // in place — so trying the sample lands you on a shareable address (the URL
-  // IS the demo), the same path a shared link takes. App.tsx's showcase effect
-  // fetches + renders atlas.json.
-  function loadSample() {
-    window.history.pushState(null, "", "/v/atlas");
-    window.dispatchEvent(new PopStateEvent("popstate"));
+  // Load the bundled sample in place — the same import pipeline an uploaded
+  // JSON takes, no navigation and no network (see ../samples).
+  async function loadSample() {
+    onError("");
+    setBusy(true);
+    try {
+      finish(await loadSampleRaw());
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Could not load the sample.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -149,11 +155,8 @@ function SampleLink({ busy, onClick }: { busy: boolean; onClick: () => void }) {
   // looked like a dead control. Warm the chunk as soon as the landing renders
   // so the click is instant, and show an explicit loading state as a fallback.
   useEffect(() => {
-    // Warm the showcase file the button now navigates to (/v/atlas) so the
-    // fetch is primed by click time.
-    fetch("/showcase/atlas.json").catch(() => {
-      /* offline warm-up miss — the /v/ path surfaces any real error */
-    });
+    // Prime the lazy sample chunk so the click is instant.
+    warmSample();
   }, []);
   return (
     <button

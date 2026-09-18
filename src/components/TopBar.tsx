@@ -3,51 +3,22 @@ import type { Theme } from "../app/useTheme";
 import { PrivacyModal } from "./Footer";
 import { IconLinkedIn, IconShield, IconUpload, IconXcom } from "./icons";
 
-/* The app header. Two variants:
-   - the use-cases page: brand (→ home) + theme toggle
-   - the wizard: brand (start over / leave-guard), and on the graph page the
-     tagline, Upload CTA and hamburger menu instead of the bare theme toggle. */
+/* The app header for the wizard: brand (start over / leave-guard), and on the
+   graph page the tagline, Upload CTA and hamburger menu instead of the bare
+   theme toggle. */
 export function TopBar({
   variant,
   theme,
   onToggleTheme,
   onBrandClick,
 }: {
-  /** "use-cases" = standalone page header; "wizard" = input/review/output. */
-  variant: "use-cases" | "wizard-output" | "wizard";
+  /** "wizard-output" = the graph page; "wizard" = input/review. */
+  variant: "wizard-output" | "wizard";
   theme: Theme;
   onToggleTheme: () => void;
   onBrandClick: () => void;
 }) {
   const onOutput = variant === "wizard-output";
-
-  if (variant === "use-cases") {
-    return (
-      <header className="topbar">
-        <button
-          type="button"
-          className="brand"
-          onClick={onBrandClick}
-          aria-label="Constella — home"
-        >
-          <span className="brand__mark" aria-hidden>
-            ✦
-          </span>
-          <span className="brand__name">Constella</span>
-        </button>
-
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={onToggleTheme}
-          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
-          {theme === "dark" ? "☀" : "☾"}
-        </button>
-      </header>
-    );
-  }
 
   return (
     <header className="topbar">

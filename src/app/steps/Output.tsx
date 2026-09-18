@@ -48,7 +48,7 @@ import {
 } from "../../components/icons";
 import type { WizardAction, WizardState } from "../state";
 import type { Theme } from "../useTheme";
-import { isSampleFile } from "../../config/showcase";
+import { isSampleFile } from "../samples";
 
 interface StepProps {
   state: WizardState;
@@ -213,7 +213,7 @@ export function OutputStep({ state, dispatch, theme }: StepProps) {
   const hierarchyCount = graph.links.filter((l) => l.kind === "contains").length;
   const referenceCount = graph.links.filter((l) => l.kind === "reference").length;
   // The bundled demo — surfaced with a "Sample" tag + a nudge to upload real data.
-  const isSample = isSampleFile(state.raw?.filename ?? "");
+  const isSample = isSampleFile(state.raw?.filename);
 
   function flash(key: string) {
     setCopied(key);
